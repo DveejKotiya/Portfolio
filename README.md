@@ -1,37 +1,44 @@
-# Dveej Kotiya Portfolio — Vercel Deployment
+# Dveej Kotiya — Developer Portfolio
 
-This is a static HTML, CSS, and JavaScript portfolio. It is ready to deploy on Vercel; no framework, build step, or environment variables are required.
+<div align="center">
 
-## Deploy with the Vercel website
+**A red-neon inspired personal portfolio built with HTML, CSS, and JavaScript.**
 
-1. Extract this ZIP file.
-2. Push the contents of this folder to a GitHub repository (make sure `index.html` is in the repository root).
-3. Open https://vercel.com/new and import that GitHub repository.
-4. In the project configuration, choose **Other** as the framework preset.
-5. Leave **Build Command** empty and set **Output Directory** to `.` (the project root).
-6. Select **Deploy**.
+[🌐 View Live Portfolio](https://dveejkotiya-vercel-deploy.vercel.app/) · [👤 GitHub Profile](https://github.com/DveejKotiya) · [📘 Profile README](https://github.com/DveejKotiya/DveejKotiya)
 
-## Deploy with the Vercel CLI
+</div>
 
-Install the Vercel CLI, sign in, then run these commands from this folder:
+## Features
 
-```bash
-npm i -g vercel
-vercel
-```
-
-Follow the prompts. For a production deployment, run:
-
-```bash
-vercel --prod
-```
+- Responsive personal portfolio with a dark red-neon visual theme.
+- About, featured projects, skills, and GitHub activity sections.
+- Live GitHub profile metrics and programming-language distribution loaded from the public GitHub API.
+- Mobile-friendly navigation and subtle motion effects.
+- Lightweight static site — no framework or build step required.
 
 ## Project files
 
-- `index.html` — portfolio page
-- `style.css` — responsive styling and animations
-- `script.js` — mobile navigation and dynamic copyright year
+- `index.html` — portfolio page and content
+- `style.css` — responsive styling, layout, and animations
+- `script.js` — mobile navigation and GitHub activity dashboard
 - `assets/` — favicon and profile artwork
 - `vercel.json` — Vercel static hosting configuration
 
-The GitHub Activity section fetches public profile/repository data from the GitHub REST API and renders statistics cards and a language distribution chart directly in the page. It requires a browser connection and is subject to GitHub's unauthenticated API rate limits.
+## Run locally
+
+1. Clone this repository.
+2. Open the folder in your code editor.
+3. Open `index.html` in a browser, or use a local development server.
+
+## Deploy on Vercel
+
+1. Import this GitHub repository into Vercel.
+2. Choose **Other** as the framework preset.
+3. Leave the build command empty and set the output directory to the project root (`.`).
+4. Deploy.
+
+If Vercel is already connected to this repository with `main` as the production branch, commits pushed to `main` should trigger a new deployment automatically.
+
+## GitHub data
+
+The activity section uses GitHub's unauthenticated public REST API. Requests are subject to GitHub's rate limits, so live metrics may occasionally take time to load or show as unavailable.
