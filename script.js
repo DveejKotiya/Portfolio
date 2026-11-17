@@ -58,7 +58,7 @@ document.querySelector("#year").textContent = new Date().getFullYear();
     setText("stat-forks", numberFormat.format(forks));
 
     const totals = {};
-    // Limit concurrent requests to be gentle on GitHub's unauthenticated API.
+    // Limit concurrent requests to be gentle with GitHub's unauthenticated API.
     for (let i = 0; i < ownedRepos.length; i += 8) {
       const batch = ownedRepos.slice(i, i + 8);
       const results = await Promise.allSettled(
