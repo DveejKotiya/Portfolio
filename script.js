@@ -115,3 +115,46 @@ document.querySelector("#year").textContent = new Date().getFullYear();
     })[char]);
   }
 })();
+
+
+// Portfolio motion system: reveal elements as they enter the viewport.
+(function initPortfolioMotion() {
+  const revealItems = document.querySelectorAll(
+    ".section-heading, .about-main, .mini-panel, .project-card, .skills-panel, .stat-metric, .language-panel, .github-cta"
+  );
+
+  if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -35px 0px" });
+
+    revealItems.forEach(item => revealObserver.observe(item));
+  } else {
+    revealItems.forEach(item => item.classList.add("is-visible"));
+  }
+
+  // A restrained pointer tilt on desktop; no movement on touch or reduced-motion devices.
+  const canTilt = window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (canTilt) {
+    document.querySelectorAll(".project-card").forEach(card => {
+      card.addEventListener("pointermove", event => {
+        const rect = card.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width;
+        const y = (event.clientY - rect.top) / rect.height;
+        const rotateY = (x - 0.5) * 5;
+        const rotateX = (0.5 - y) * 5;
+        card.style.transform = `translateY(-5px) perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      });
+      card.addEventListener("pointerleave", () => {
+        card.style.transform = "";
+      });
+    });
+  }
+})();
