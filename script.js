@@ -158,3 +158,78 @@ document.querySelector("#year").textContent = new Date().getFullYear();
     });
   }
 })();
+
+
+// Hero typing effect: cycles through the roles and interests in this portfolio.
+(function initHeroTyping(){
+  const target=document.getElementById("typed-role");
+  if(!target)return;
+  const phrases=["an AI & ML student","a Python developer","a curious problem solver","building intelligent projects"];
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){target.textContent=phrases[0];return;}
+  let phraseIndex=0,characterIndex=phrases[0].length,deleting=true;
+  target.textContent=phrases[0];
+  function typeLoop(){
+    const phrase=phrases[phraseIndex];
+    if(deleting){
+      characterIndex--;
+      target.textContent=phrase.slice(0,Math.max(0,characterIndex));
+      if(characterIndex<=0){deleting=false;phraseIndex=(phraseIndex+1)%phrases.length;window.setTimeout(typeLoop,350);return;}
+      window.setTimeout(typeLoop,42);return;
+    }
+    const nextPhrase=phrases[phraseIndex];
+    characterIndex++;
+    target.textContent=nextPhrase.slice(0,characterIndex);
+    if(characterIndex>=nextPhrase.length){deleting=true;window.setTimeout(typeLoop,1500);return;}
+    window.setTimeout(typeLoop,78);
+  }
+  window.setTimeout(typeLoop,1400);
+})();
+
+// Lightweight canvas particle network, tuned for the red-neon theme.
+(function initRedParticleField(){
+  const canvas=document.getElementById("particle-canvas");
+  if(!canvas)return;
+  const context=canvas.getContext("2d");
+  if(!context)return;
+  const reducedMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const pointer={x:-1000,y:-1000};
+  let particles=[],width=0,height=0,frameId=0,lastFrame=0;
+  function resize(){
+    const dpr=Math.min(window.devicePixelRatio||1,1.5);
+    width=window.innerWidth;height=window.innerHeight;
+    canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
+    context.setTransform(dpr,0,0,dpr,0,0);
+    const count=Math.min(95,Math.max(32,Math.round(width*height/14500)));
+    particles=Array.from({length:count},()=>({x:Math.random()*width,y:Math.random()*height,vx:(Math.random()-.5)*.34,vy:(Math.random()-.5)*.34,radius:Math.random()*1.5+.65,alpha:Math.random()*.42+.2}));
+    draw();
+  }
+  function draw(timestamp=0){
+    if(!reducedMotion&&timestamp&&timestamp-lastFrame<30){frameId=requestAnimationFrame(draw);return;}
+    lastFrame=timestamp;context.clearRect(0,0,width,height);
+    particles.forEach((particle,index)=>{
+      if(!reducedMotion){
+        particle.x+=particle.vx;particle.y+=particle.vy;
+        if(particle.x< -8||particle.x>width+8)particle.vx*=-1;
+        if(particle.y< -8||particle.y>height+8)particle.vy*=-1;
+      }
+      const dxPointer=particle.x-pointer.x,dyPointer=particle.y-pointer.y,pointerDistance=Math.hypot(dxPointer,dyPointer);
+      if(!reducedMotion&&pointerDistance<115&&pointerDistance>0){particle.x+=(dxPointer/pointerDistance)*.45;particle.y+=(dyPointer/pointerDistance)*.45;}
+      context.beginPath();context.arc(particle.x,particle.y,particle.radius,0,Math.PI*2);
+      context.fillStyle=`rgba(248,70,80,${particle.alpha})`;context.shadowBlur=10;context.shadowColor="rgba(239,68,68,.55)";context.fill();context.shadowBlur=0;
+      for(let next=index+1;next<particles.length;next++){
+        const other=particles[next],dx=particle.x-other.x,dy=particle.y-other.y,distance=Math.hypot(dx,dy);
+        if(distance<105){context.beginPath();context.moveTo(particle.x,particle.y);context.lineTo(other.x,other.y);context.strokeStyle=`rgba(239,68,68,${(1-distance/105)*.14})`;context.lineWidth=.7;context.stroke();}
+      }
+    });
+    if(!reducedMotion)frameId=requestAnimationFrame(draw);
+  }
+  window.addEventListener("pointermove",event=>{pointer.x=event.clientX;pointer.y=event.clientY;},{passive:true});
+  window.addEventListener("pointerleave",()=>{pointer.x=-1000;pointer.y=-1000;});
+  window.addEventListener("resize",resize,{passive:true});
+  document.addEventListener("visibilitychange",()=>{
+    if(document.hidden&&frameId){cancelAnimationFrame(frameId);frameId=0;}
+    else if(!document.hidden&&!reducedMotion&&!frameId)frameId=requestAnimationFrame(draw);
+  });
+  resize();
+  if(!reducedMotion)frameId=requestAnimationFrame(draw);
+})();
