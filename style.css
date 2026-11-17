@@ -27,3 +27,46 @@
 .stats-attribution{margin-top:13px}
 @media(max-width:800px){.github-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.language-heading{align-items:flex-start;flex-direction:column}}
 @media(max-width:480px){.github-stats-grid{gap:9px}.stat-metric{padding:17px 14px}.metric-label{font-size:8px}.metric-caption{font-size:10px}.language-panel{padding:19px}.language-heading h3{font-size:19px}}
+
+/* Motion upgrade: scroll reveals, neon orbit, and interactive cards */
+.hero-copy > *, .hero-art, .scroll-cue { animation: portfolio-enter .85s cubic-bezier(.2,.75,.25,1) both; }
+.hero-copy > :nth-child(2) { animation-delay: .08s; }
+.hero-copy > :nth-child(3) { animation-delay: .16s; }
+.hero-copy > :nth-child(4) { animation-delay: .24s; }
+.hero-copy > :nth-child(5) { animation-delay: .32s; }
+.hero-art { animation: portfolio-enter 1s .2s cubic-bezier(.2,.75,.25,1) both, art-float 7s 1.2s ease-in-out infinite; }
+@keyframes portfolio-enter { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+@keyframes art-float { 0%,100% { translate:0 0; } 50% { translate:0 -9px; } }
+.web-orbit.orbit-a { animation: orbit-spin 28s linear infinite; }
+.web-orbit.orbit-b { animation: orbit-spin-reverse 22s linear infinite; }
+@keyframes orbit-spin { to { rotate:360deg; } }
+@keyframes orbit-spin-reverse { to { rotate:-360deg; } }
+.spider-core { animation: core-pulse 4s ease-in-out infinite; }
+@keyframes core-pulse { 0%,100% { box-shadow:0 0 55px #ef444433,inset 0 1px 1px #ffffff55; } 50% { box-shadow:0 0 95px #ef444477,inset 0 1px 1px #ffffff88; } }
+.section-heading, .about-main, .mini-panel, .project-card, .skills-panel, .stat-metric, .language-panel, .github-cta {
+  opacity:0; transform:translateY(24px);
+  transition:opacity .7s ease, transform .7s cubic-bezier(.2,.75,.25,1), border-color .25s ease, box-shadow .25s ease;
+}
+.section-heading.is-visible, .about-main.is-visible, .mini-panel.is-visible, .project-card.is-visible, .skills-panel.is-visible, .stat-metric.is-visible, .language-panel.is-visible, .github-cta.is-visible {
+  opacity:1; transform:translateY(0);
+}
+.mini-panel:nth-child(2) { transition-delay:.1s; }
+.mini-panel:nth-child(3) { transition-delay:.2s; }
+.project-card:nth-child(2) { transition-delay:.1s; }
+.project-card:nth-child(3) { transition-delay:.2s; }
+.project-card { transform-style:preserve-3d; will-change:transform; }
+.project-card:hover { box-shadow:0 18px 48px #0008, 0 0 28px #ef44441a; }
+.project-art { transition:filter .35s ease, transform .45s cubic-bezier(.2,.75,.25,1); }
+.project-card:hover .project-art { filter:saturate(1.25) brightness(1.12); transform:scale(1.025); }
+.button, .nav a, .project-link { transition:color .25s ease, background .25s ease, border-color .25s ease, box-shadow .25s ease, transform .25s ease; }
+.button-primary:hover { box-shadow:0 10px 34px #ef444455; }
+.nav a:not(.nav-cta) { position:relative; }
+.nav a:not(.nav-cta):after { content:""; position:absolute; left:0; right:100%; bottom:-7px; height:1px; background:var(--red); transition:right .25s ease; }
+.nav a:not(.nav-cta):hover:after { right:0; }
+.ambient-one { animation:ambient-drift 16s ease-in-out infinite alternate; }
+.ambient-two { animation:ambient-drift 20s ease-in-out infinite alternate-reverse; }
+@keyframes ambient-drift { from { transform:translate3d(0,0,0) scale(1); } to { transform:translate3d(45px,35px,0) scale(1.15); } }
+@media(prefers-reduced-motion:reduce) {
+  .hero-copy > *, .hero-art, .scroll-cue, .web-orbit, .spider-core, .ambient-one, .ambient-two { animation:none!important; }
+  .section-heading, .about-main, .mini-panel, .project-card, .skills-panel, .stat-metric, .language-panel, .github-cta { opacity:1!important; transform:none!important; transition:none!important; }
+}
