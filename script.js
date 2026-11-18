@@ -21,6 +21,7 @@ document.querySelector("#year").textContent = new Date().getFullYear();
   const username = "DveejKotiya";
   const api = "https://api.github.com";
   const numberFormat = new Intl.NumberFormat("en-IN");
+  const statIds = ["stat-repos", "stat-stars", "stat-followers", "stat-forks"];
 
   function setText(id, value) {
     const node = document.getElementById(id);
@@ -29,41 +30,73 @@ document.querySelector("#year").textContent = new Date().getFullYear();
 
   function showChartMessage(message) {
     const chart = document.getElementById("language-chart");
-    if (chart) chart.innerHTML = `<p class="chart-loading">${message}</p>`;
+    if (chart) chart.textContent = message;
   }
 
   async function fetchJson(url) {
-    const response = await fetch(url, {
-      headers: { Accept: "application/vnd.github+json" }
-    });
-    if (!response.ok) {
-      throw new Error(`GitHub API returned ${response.status}`);
+    let lastError;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const response = await fetch(url, {
+          headers: { Accept: "application/vnd.github+json" }
+        });
+        if (!response.ok) {
+          let detail = "";
+          try {
+            const body = await response.json();
+            detail = body.message || "";
+          } catch (_) {}
+          const error = new Error(detail || `GitHub API error (${response.status})`);
+          error.status = response.status;
+          // Rate limits and permission errors will not be fixed by retrying.
+          if (response.status === 403 || response.status === 404) throw error;
+          lastError = error;
+        } else {
+          return await response.json();
+        }
+      } catch (error) {
+        if (error.status === 403 || error.status === 404) throw error;
+        lastError = error;
+      }
+      if (attempt === 0) await new Promise(resolve => setTimeout(resolve, 700));
     }
-    return response.json();
+    throw lastError || new Error("Unable to reach GitHub");
   }
 
-  try {
-    const [profile, repositories] = await Promise.all([
-      fetchJson(`${api}/users/${username}`),
-      fetchJson(`${api}/users/${username}/repos?per_page=100&type=owner&sort=updated`)
-    ]);
+  function errorMessage(error) {
+    if (error && error.status === 403) {
+      return "GitHub is temporarily rate-limiting this visitor. Please try again shortly.";
+    }
+    return "Some GitHub statistics could not be loaded. Please refresh in a moment.";
+  }
 
-    const ownedRepos = repositories.filter(repo => !repo.fork);
-    const stars = ownedRepos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
-    const forks = ownedRepos.reduce((sum, repo) => sum + repo.forks_count, 0);
+  // Load the profile and repositories independently. A failure in one request
+  // should never erase statistics successfully returned by the other.
+  const [profileResult, reposResult] = await Promise.allSettled([
+    fetchJson(`${api}/users/${username}`),
+    fetchJson(`${api}/users/${username}/repos?per_page=100&type=owner&sort=updated`)
+  ]);
 
-    setText("stat-repos", numberFormat.format(profile.public_repos));
+  if (profileResult.status === "fulfilled") {
+    const profile = profileResult.value;
+    setText("stat-repos", numberFormat.format(profile.public_repos ?? 0));
+    setText("stat-followers", numberFormat.format(profile.followers ?? 0));
+  } else {
+    setText("stat-repos", "—");
+    setText("stat-followers", "—");
+  }
+
+  if (reposResult.status === "fulfilled") {
+    const ownedRepos = reposResult.value.filter(repo => !repo.fork);
+    const stars = ownedRepos.reduce((sum, repo) => sum + (repo.stargazers_count || 0), 0);
+    const forks = ownedRepos.reduce((sum, repo) => sum + (repo.forks_count || 0), 0);
     setText("stat-stars", numberFormat.format(stars));
-    setText("stat-followers", numberFormat.format(profile.followers));
     setText("stat-forks", numberFormat.format(forks));
 
     const totals = {};
-    // Limit concurrent requests to be gentle with GitHub's unauthenticated API.
-    for (let i = 0; i < ownedRepos.length; i += 8) {
-      const batch = ownedRepos.slice(i, i + 8);
-      const results = await Promise.allSettled(
-        batch.map(repo => fetchJson(repo.languages_url))
-      );
+    for (let i = 0; i < ownedRepos.length; i += 6) {
+      const batch = ownedRepos.slice(i, i + 6);
+      const results = await Promise.allSettled(batch.map(repo => fetchJson(repo.languages_url)));
       results.forEach(result => {
         if (result.status === "fulfilled") {
           Object.entries(result.value).forEach(([language, bytes]) => {
@@ -72,12 +105,15 @@ document.querySelector("#year").textContent = new Date().getFullYear();
         }
       });
     }
-
     renderLanguageChart(totals);
-  } catch (error) {
-    console.error("Unable to load GitHub dashboard:", error);
-    ["stat-repos", "stat-stars", "stat-followers", "stat-forks"].forEach(id => setText(id, "Unavailable"));
-    showChartMessage("GitHub data could not be loaded right now. Please refresh the page in a moment.");
+  } else {
+    setText("stat-stars", "—");
+    setText("stat-forks", "—");
+    showChartMessage(errorMessage(reposResult.reason));
+  }
+
+  if (profileResult.status === "rejected" && reposResult.status === "rejected") {
+    showChartMessage(errorMessage(profileResult.reason));
   }
 
   function renderLanguageChart(languageTotals) {
@@ -90,7 +126,7 @@ document.querySelector("#year").textContent = new Date().getFullYear();
       .slice(0, 7);
 
     if (!entries.length) {
-      showChartMessage("No public language data was found yet.");
+      showChartMessage("No language breakdown is available for the public repositories yet.");
       return;
     }
 
@@ -115,7 +151,6 @@ document.querySelector("#year").textContent = new Date().getFullYear();
     })[char]);
   }
 })();
-
 
 // Portfolio motion system: reveal elements as they enter the viewport.
 (function initPortfolioMotion() {
