@@ -127,7 +127,7 @@ document.querySelector("#year").textContent = new Date().getFullYear();
 (function initHeroTyping(){
   const target=document.getElementById("typed-role");
   if(!target)return;
-  const phrases=["an AI & ML student","a Python developer","a curious problem solver","building intelligent projects"];
+  const phrases=["an MSc student","a Python developer","a curious problem solver","building intelligent projects"];
   if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){target.textContent=phrases[0];return;}
   let phraseIndex=0,characterIndex=phrases[0].length,deleting=true;
   target.textContent=phrases[0];
