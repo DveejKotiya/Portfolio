@@ -196,3 +196,24 @@ document.querySelector("#year").textContent = new Date().getFullYear();
   resize();
   if(!reducedMotion)frameId=requestAnimationFrame(draw);
 })();
+
+
+// Scroll progress indicator: a subtle neon line tracks reading progress.
+(function initScrollProgress(){
+  const bar=document.createElement("div");
+  bar.id="scroll-progress";
+  bar.setAttribute("aria-hidden","true");
+  document.body.appendChild(bar);
+  let ticking=false;
+  function update(){
+    const scrollable=document.documentElement.scrollHeight-window.innerHeight;
+    const progress=scrollable>0?window.scrollY/scrollable:0;
+    bar.style.width=(Math.min(1,Math.max(0,progress))*100)+"%";
+    ticking=false;
+  }
+  window.addEventListener("scroll",()=>{
+    if(!ticking){window.requestAnimationFrame(update);ticking=true;}
+  },{passive:true});
+  window.addEventListener("resize",update,{passive:true});
+  update();
+})();
