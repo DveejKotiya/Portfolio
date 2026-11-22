@@ -118,3 +118,33 @@
 .project-card:focus-within{outline:2px solid #38bdf8;outline-offset:4px}
 @media(hover:none){.project-card:hover{transform:none}.project-card:hover .project-art{transform:none}}
 @media(prefers-reduced-motion:reduce){.project-card,.project-art,.mini-panel,.stat-metric{transition:none!important}}
+
+
+/* Extra polish: scroll progress, cinematic hero sheen, and card light sweep */
+#scroll-progress{
+  position:fixed;top:0;left:0;width:0;height:3px;z-index:100;
+  background:linear-gradient(90deg,#ef4444 0%,#fb7185 48%,#38bdf8 100%);
+  box-shadow:0 0 14px #ef444488;
+  transform-origin:left center;
+  pointer-events:none;
+}
+.hero-art{isolation:isolate}
+.hero-art::after{
+  content:"";position:absolute;inset:-60% -35%;z-index:2;pointer-events:none;
+  background:linear-gradient(110deg,transparent 42%,#ffffff0b 48%,#ffffff28 50%,#ffffff0b 52%,transparent 58%);
+  transform:translateX(-70%) rotate(8deg);
+  animation:hero-sheen 8s ease-in-out infinite;
+}
+@keyframes hero-sheen{
+  0%,25%{transform:translateX(-70%) rotate(8deg)}
+  65%,100%{transform:translateX(70%) rotate(8deg)}
+}
+.project-card::after{
+  content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(115deg,transparent 25%,#ffffff12 46%,#ffffff30 50%,#ffffff10 54%,transparent 75%);
+  transform:translateX(-130%);transition:transform .75s ease;
+}
+.project-card:hover::after{transform:translateX(130%)}
+@media(prefers-reduced-motion:reduce){
+  .hero-art::after,.project-card::after{animation:none!important;transition:none!important}
+}
